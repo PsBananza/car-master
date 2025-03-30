@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добро пожаловать</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #2e3b4e, #0c1b28);
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: auto;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #00d0ff;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #00d0ff;
+            color: #1b1f28;
+            padding: 15px 20px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 80%;
+        }
+
+        button:hover {
+            background: #00a0cc;
+        }
+
+        button:active {
+            background: #0091b3;
+        }
+
+        button:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Добро пожаловать!</h1>
+    <p>Выберите действие:</p>
+    <button onclick="sendData('login')">🔑 Вход</button>
+    <button onclick="location.href='register.html'">📝 Регистрация</button>
+    <button onclick="location.href='main.html'">⬅️ Назад</button>
+</div>
+
+<script>
+    window.onload = function() {
+        // Извлекаем telegramId из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const telegramId = urlParams.get('telegramId');
+
+        // Если telegramId найден в URL, сохраняем его в localStorage
+        if (telegramId) {
+            localStorage.setItem("telegramId", telegramId);
+            console.log("telegramId сохранен в localStorage:", telegramId);
+        } else {
+            console.log("telegramId не найден в URL");
+        }
+    };
+
+    // Пример функции для обработки входа (вы можете доработать по нуждам)
+    function sendData(action) {
+        if (action === 'login') {
+            const telegramId = localStorage.getItem("telegramId");
+            if (!telegramId) {
+                alert("Не удалось найти telegramId в localStorage.");
+                return;
+            }
+            // Дальше обрабатываем логин с использованием telegramId
+            console.log("ID пользователя для логина:", telegramId);
+            // Переход на страницу входа или другие действия
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход в систему</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary: rgba(255, 255, 255, 0.9); /* Прозрачно-белый */
+            --primary-light: rgba(255, 255, 255, 0.7);
+            --primary-dark: rgba(255, 255, 255, 0.95);
+            --secondary: rgba(255, 255, 255, 0.8);
+            --light: rgba(255, 255, 255, 0.6);
+            --dark: rgba(0, 0, 0, 0.8); /* Тёмный текст для контраста */
+            --gray: rgba(0, 0, 0, 0.6);
+            --light-gray: rgba(0, 0, 0, 0.1);
+            --border: rgba(255, 255, 255, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        .login-container {
+            width: 90%;
+            max-width: 450px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 40px 30px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .login-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 25px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        p {
+            font-size: 16px;
+            color: var(--gray);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: none;
+            outline: none;
+            position: relative;
+            overflow: hidden;
+            margin: 10px 0;
+            width: 100%;
+            max-width: 280px;
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.9);
+            color: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-icon {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .admin-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            color: rgba(0, 0, 0, 0.8);
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .admin-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            color: rgba(0, 0, 0, 0.9);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .animate-delay-1 {
+            animation-delay: 0.2s;
+        }
+
+        .animate-delay-2 {
+            animation-delay: 0.4s;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid var(--light-gray);
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+<a href="webapp.html" class="admin-btn animate__animated animate__fadeIn">
+    <span class="btn-icon">🔑</span>
+    <span>Панель администратора</span>
+</a>
+
+<div class="login-container animate__animated animate__fadeInUp">
+    <div class="logo animate__animated animate__bounceIn floating">🚗</div>
+    <h1 class="animate__animated animate__fadeIn animate-delay-1">Добро пожаловать!</h1>
+    <p class="animate__animated animate__fadeIn animate-delay-2">
+        Просматривайте организации, находите нужные услуги и получайте актуальную информацию
+    </p>
+
+    <button class="btn btn-primary animate__animated animate__fadeIn animate-delay-2" onclick="showOrganizations()">
+        <span class="btn-icon">🔍</span>
+        <span>Показать организации</span>
+    </button>
+</div>
+
+<script>
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const telegramId = urlParams.get('telegramId');
+
+        if (telegramId) {
+            localStorage.setItem("telegramId", telegramId);
+            console.log("telegramId сохранен в localStorage:", telegramId);
+        } else {
+            console.log("telegramId не найден в URL");
+        }
+    };
+
+    function showOrganizations() {
+        window.location.href = "client_category.html";
+    }
+</script>
+</body>
+</html>

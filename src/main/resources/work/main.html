@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #2e3b4e, #0c1b28);
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: auto;
+            position: relative;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #00d0ff;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #00d0ff;
+            color: #1b1f28;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 80%;
+        }
+
+        button:hover {
+            background: #00a0cc;
+        }
+
+        button:active {
+            background: #0091b3;
+        }
+
+        button:focus {
+            outline: none;
+        }
+
+        .top-center-button {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 15px;
+            font-size: 14px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+<button class="top-center-button" onclick="location.href='webapp.html'">🔑 Войти в ЛК</button>
+<div class="container">
+    <h1>Вход</h1>
+    <p>Нажмите кнопку ниже, чтобы просмотреть организации</p>
+    <button onclick="showOrganizations()">🏢 Показать организации</button>
+</div>
+
+<script>
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const telegramId = urlParams.get('telegramId');
+
+        if (telegramId) {
+            localStorage.setItem("telegramId", telegramId);
+            console.log("telegramId сохранен в localStorage:", telegramId);
+        } else {
+            console.log("telegramId не найден в URL");
+        }
+    };
+    function showOrganizations() {
+        alert("Здесь будет отображение организаций.");
+    }
+</script>
+</body>
+</html>

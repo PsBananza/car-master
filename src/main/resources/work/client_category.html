@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Категории</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #2e3b4e, #0c1b28);
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: auto;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #00d0ff;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: rgba(255, 255, 255, 0.2);
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #ff4b4b;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<button class="back-button" onclick="history.back()">⬅ Назад</button>
+<div class="container">
+    <h1>Категории</h1>
+    <ul id="category-list">Загрузка...</ul>
+</div>
+
+<script>
+    function loadCategories() {
+        fetch('/categories')
+            .then(response => response.json())
+            .then(data => {
+                const list = document.getElementById('category-list');
+                list.innerHTML = '';
+
+                data.forEach(category => {
+                    let li = document.createElement('li');
+                    li.textContent = category.name;
+                    li.onclick = () => {
+                        localStorage.setItem("categoryId", category.id);
+                        if (category.isSub) {
+                            window.location.href = 'subcategories.html';
+                        } else {
+                            window.location.href = 'organization_list.html';
+                        }
+                    };
+                    list.appendChild(li);
+                });
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки категорий:', error);
+                document.getElementById('category-list').textContent = 'Ошибка загрузки данных';
+            });
+    }
+
+    window.onload = loadCategories;
+</script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выбор категории</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #2e3b4e, #0c1b28);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 20px;
+            overflow: auto;
+            position: relative;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 500px;
+            text-align: left;
+            margin-top: 60px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #00d0ff;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .category-container {
+            display: block;
+            margin: 12px 0;
+            font-size: 1.1rem;
+        }
+
+        .subcategories {
+            margin-left: 15px;
+            display: none;
+        }
+
+        .subcategories label {
+            font-size: 1rem;
+            color: #b0b0b0;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        /* Кнопки */
+        .button-small {
+            position: absolute;
+            top: 15px;
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        /* Кнопка назад */
+        .back-button {
+            left: 15px;
+            background: #ff4b4b;
+            color: white;
+        }
+
+        .back-button:hover {
+            background: #cc0000;
+        }
+
+        /* Кнопка продолжить */
+        .continue-button {
+            right: 15px;
+            background: #00d0ff;
+            color: #1b1f28;
+        }
+
+        .continue-button:hover {
+            background: #00a0cc;
+        }
+    </style>
+    <script>
+        function populateCategories(categories) {
+            const container = document.getElementById("categoriesContainer");
+            container.innerHTML = "";
+
+            Object.keys(categories).forEach(category => {
+                const categoryLabel = document.createElement("label");
+                categoryLabel.classList.add("category-container");
+                categoryLabel.innerHTML = `<input type='checkbox' onchange='toggleSubcategories("${category}")'> ${category}`;
+                container.appendChild(categoryLabel);
+
+                const subContainer = document.createElement("div");
+                subContainer.id = `sub-${category}`;
+                subContainer.classList.add("subcategories");
+
+                if (categories[category].length > 0) {
+                    const selectAllSubLabel = document.createElement("label");
+                    selectAllSubLabel.innerHTML = `<input type='checkbox' onchange='toggleAllSubcategories("${category}")' id='select-all-${category}'> <strong>Выбрать все</strong>`;
+                    subContainer.appendChild(selectAllSubLabel);
+                    subContainer.appendChild(document.createElement("br"));
+
+                    categories[category].forEach(subcategory => {
+                        const subLabel = document.createElement("label");
+                        subLabel.innerHTML = `<input type='checkbox' name='subcategories' value='${subcategory}' data-category='${category}' onchange='checkSelectAll("${category}")'> ${subcategory}`;
+                        subContainer.appendChild(subLabel);
+                        subContainer.appendChild(document.createElement("br"));
+                    });
+                } else {
+                    subContainer.style.display = "none";
+                }
+
+                container.appendChild(subContainer);
+            });
+        }
+
+
+
+        function toggleSubcategories(category) {
+            const subContainer = document.getElementById(`sub-${category}`);
+            subContainer.style.display = subContainer.style.display === "block" ? "none" : "block";
+        }
+
+        function toggleAllSubcategories(category) {
+            const selectAllCheckbox = document.getElementById(`select-all-${category}`);
+            const subcategoryCheckboxes = document.querySelectorAll(`input[name='subcategories'][data-category='${category}']`);
+
+            subcategoryCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        }
+
+        function checkSelectAll(category) {
+            const subcategoryCheckboxes = document.querySelectorAll(`input[name='subcategories'][data-category='${category}']`);
+            const selectAllCheckbox = document.getElementById(`select-all-${category}`);
+
+            selectAllCheckbox.checked = Array.from(subcategoryCheckboxes).every(checkbox => checkbox.checked);
+
+            const categoryCheckbox = document.querySelector(`input[type='checkbox'][onchange='toggleSubcategories("${category}")']`);
+            const isAnySubcategoryChecked = Array.from(subcategoryCheckboxes).some(checkbox => checkbox.checked);
+
+            categoryCheckbox.checked = isAnySubcategoryChecked;
+        }
+
+        function continueRegistration() {
+            const selectedCategories = {};
+
+            document.querySelectorAll("#categoriesContainer > label").forEach(categoryLabel => {
+                const category = categoryLabel.textContent.trim();
+                const subContainer = document.getElementById(`sub-${category}`);
+                const categoryCheckbox = categoryLabel.querySelector("input[type='checkbox']");
+
+                if (subContainer) {
+                    const checkedSubcategories = Array.from(subContainer.querySelectorAll("input[name='subcategories']:checked"))
+                        .map(checkbox => checkbox.value);
+
+                    if (checkedSubcategories.length > 0) {
+                        selectedCategories[category] = checkedSubcategories;
+                    } else if (categoryCheckbox.checked) {
+                        selectedCategories[category] = [];
+                    }
+                } else {
+                    // Если подкатегорий нет, проверяем чекбокс категории
+                    if (categoryCheckbox.checked) {
+                        selectedCategories[category] = [];
+                    }
+                }
+            });
+
+            if (Object.keys(selectedCategories).length === 0) {
+                alert("Выберите хотя бы одну категорию или подкатегорию!");
+                return;
+            }
+
+            localStorage.setItem("selectedCategories", JSON.stringify(selectedCategories));
+            window.location.href = "upload_photos.html";
+        }
+    </script>
+</head>
+<body>
+
+<button class="button-small back-button" onclick="history.back()">⬅</button>
+
+<button class="button-small continue-button" onclick="continueRegistration()">✔</button>
+
+<div class="container">
+    <h1>Выбор категории</h1>
+    <div id="categoriesContainer"></div>
+</div>
+
+<script>
+    window.onload = function() {
+        fetch("/categories/subcategories")
+            .then(response => response.json())
+            .then(data => populateCategories(data));
+    };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Организации</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: red;
+            color: white;
+            font-size: 14px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background-color: darkred;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .organization-phone {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .phone-link {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .phone-link:hover {
+            text-decoration: underline;
+        }
+
+        .location-header {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .location-info {
+            font-size: 16px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        .location-selectors {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        @media (min-width: 600px) {
+            .location-selectors {
+                width: auto;
+                flex-wrap: nowrap;
+            }
+        }
+
+        select {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            min-width: 150px;
+            flex-grow: 1;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto 20px;
+            width: 100%;
+        }
+
+        .organization-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .organization-item {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+            padding: 15px;
+        }
+
+        .images-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .image-wrapper {
+            width: calc(20% - 4px);
+            aspect-ratio: 1;
+            overflow: hidden;
+            border-radius: 4px;
+            background-color: #eee;
+        }
+
+        .organization-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .organization-image:hover {
+            transform: scale(1.03);
+        }
+
+        .organization-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #222;
+        }
+
+        .organization-company {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .organization-address {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .organization-phone {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .organization-description {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 80%;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<button onclick="goBack()" class="back-button">⬅ Назад</button>
+<div class="container">
+    <div class="location-header">
+        <div class="location-info">
+            <span id="current-location">Загрузка местоположения...</span>
+        </div>
+        <div class="location-selectors">
+            <select id="district-select" onchange="loadCities()"></select>
+            <select id="city-select" onchange="updateLocationAndLoadOrganizations()"></select>
+        </div>
+    </div>
+
+    <ul id="organization-list" class="organization-list">Загрузка организаций...</ul>
+</div>
+
+<!-- Модальное окно -->
+<div id="modal" class="modal">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <img id="modal-image" class="modal-content" alt="Фото">
+</div>
+
+<script>
+    // Глобальные переменные для хранения текущего местоположения
+    let currentDistrict = '';
+    let currentCity = '';
+    const districts = ["Ростовская область", "Краснодарский край"];
+
+    function goBack() {
+        localStorage.removeItem('categoryId');
+        localStorage.removeItem('subcategoryName');
+        window.location.href = 'client_category.html';
+    }
+
+    async function initLocation() {
+        // Инициализация выбора области
+        const districtSelect = document.getElementById('district-select');
+        districts.forEach(district => {
+            const option = document.createElement('option');
+            option.value = district;
+            option.textContent = district;
+            districtSelect.appendChild(option);
+        });
+
+        // Устанавливаем первую область по умолчанию
+        currentDistrict = districts[0];
+        await loadCities();
+
+        // Устанавливаем первый город по умолчанию
+        const citySelect = document.getElementById('city-select');
+        if (citySelect.options.length > 0) {
+            currentCity = citySelect.options[0].value;
+            updateLocation();
+            loadOrganizations(); // Загружаем организации после инициализации
+        }
+    }
+
+    async function loadCities() {
+        const districtSelect = document.getElementById('district-select');
+        currentDistrict = districtSelect.value;
+
+        try {
+            const response = await fetch(`/cities?district=${encodeURIComponent(currentDistrict)}`);
+            const data = await response.json();
+
+            const citySelect = document.getElementById('city-select');
+            citySelect.innerHTML = '';
+
+            data.cities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = city;
+                citySelect.appendChild(option);
+            });
+
+            // Обновляем текущий город
+            if (data.cities.length > 0) {
+                currentCity = data.cities[0];
+                updateLocationAndLoadOrganizations();
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки городов:', error);
+            document.getElementById('organization-list').textContent = 'Ошибка загрузки списка городов';
+        }
+    }
+
+    function updateLocation() {
+        const citySelect = document.getElementById('city-select');
+        currentCity = citySelect.value;
+
+        document.getElementById('current-location').textContent =
+            `${currentDistrict}, ${currentCity}`;
+    }
+
+    function updateLocationAndLoadOrganizations() {
+        updateLocation();
+        loadOrganizations(); // Перезагружаем организации при смене города
+    }
+
+    async function loadOrganizations() {
+        const list = document.getElementById('organization-list');
+        list.innerHTML = '<li>Загрузка организаций...</li>';
+
+        try {
+            const response = await fetch('/card/info', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    city: currentCity,
+                    category: localStorage.getItem('categoryId'),
+                    subcategory: localStorage.getItem('subcategoryName')
+                })
+            });
+            const data = await response.json();
+            renderOrganizations(data);
+        } catch (error) {
+            console.error('Ошибка загрузки:', error);
+            document.getElementById('organization-list').innerHTML =
+                '<li>Ошибка загрузки данных. Пожалуйста, попробуйте позже.</li>';
+        }
+    }
+
+    function renderOrganizations(data) {
+        const list = document.getElementById('organization-list');
+        list.innerHTML = '';
+
+        if (!Array.isArray(data) || data.length === 0) {
+            list.innerHTML = '<li>Нет организаций для отображения в выбранном городе</li>';
+            return;
+        }
+
+        data.forEach((org) => {
+            const li = document.createElement('li');
+            li.className = 'organization-item';
+
+            // Ограничиваем количество изображений до 5
+            const imagesToShow = org.files?.slice(0, 5) || [];
+
+            // Создаем контейнер для изображений
+            let imagesHtml = '';
+            if (imagesToShow.length > 0) {
+                imagesHtml = '<div class="images-container">';
+                imagesToShow.forEach((image) => {
+                    imagesHtml += `
+                            <div class="image-wrapper">
+                                <img src="data:${image.contentType};base64,${image.byte64}"
+                                     alt="${image.originalFileName}" class="organization-image"
+                                     onclick="openModal('${image.byte64}', '${image.contentType}')">
+                            </div>
+                        `;
+                });
+                imagesHtml += '</div>';
+            }
+
+            // Форматируем телефон для ссылки tel:
+            let phoneHtml = 'Телефон не указан';
+            if (org.phone) {
+                const cleanPhone = org.phone.replace(/[^\d+]/g, ''); // Оставляем только цифры и +
+                phoneHtml = `☎ <a href="tel:${cleanPhone}" class="phone-link">${org.phone}</a>`;
+            }
+
+            li.innerHTML = `
+                    ${imagesHtml}
+                    <div class="organization-info">
+                        <div class="organization-company">${org.company || 'Компания не указана'}</div>
+                        <div class="organization-address">📍 ${org.address || 'Адрес не указан'}</div>
+                        <div class="organization-phone">${phoneHtml}</div>
+                        ${org.description ? `<div class="organization-description">${org.description}</div>` : ''}
+                    </div>
+                `;
+            list.appendChild(li);
+        });
+    }
+
+    function openModal(byte64, contentType) {
+        const modal = document.getElementById('modal');
+        const modalImg = document.getElementById('modal-image');
+        modalImg.src = `data:${contentType};base64,${byte64}`;
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    document.getElementById('modal').addEventListener('click', (event) => {
+        if (event.target === event.currentTarget) {
+            closeModal();
+        }
+    });
+
+    window.onload = initLocation;
+</script>
+</body>
+</html>
