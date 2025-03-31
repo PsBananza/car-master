@@ -1,13 +1,12 @@
 package com.autoresourse.car_master.service.card;
 
-import com.autoresourse.car_master.dto.OrganizationCardRequest;
-import com.autoresourse.car_master.dto.OrganizationCardResponseDTO;
-import com.autoresourse.car_master.dto.RegistrationOrganizationRequest;
+import com.autoresourse.car_master.dto.*;
 import com.autoresourse.car_master.entity.Category;
 import com.autoresourse.car_master.entity.OrganizationCards;
 import com.autoresourse.car_master.entity.SubCategory;
 import com.autoresourse.car_master.entity.Users;
 import com.autoresourse.car_master.mapper.OrganizationCardMapper;
+import com.autoresourse.car_master.mapper.OrganizationsCardsMapper;
 import com.autoresourse.car_master.repository.OrganizationCardRepository;
 import com.autoresourse.car_master.service.category.CategoryService;
 import com.autoresourse.car_master.service.file.FileService;
@@ -27,6 +26,7 @@ import java.util.*;
 public class OrganizationCardServiceImpl implements OrganizationCardService {
     private final OrganizationCardRepository organizationCardRepository;
     private final OrganizationCardMapper organizationCardMapper;
+    private final OrganizationsCardsMapper organizationsCardsMapper;
     private final UserService userService;
     private final FileService fileService;
     private final CategoryService categoryService;
@@ -74,7 +74,7 @@ public class OrganizationCardServiceImpl implements OrganizationCardService {
     }
 
     @Override
-    public List<OrganizationCardResponseDTO> getOrganizationCardWithFiles(OrganizationCardRequest request) {
+    public List<OrganizationCardResponse> getOrganizationsCardsWithFiles(OrganizationsCardsRequest request) {
         List<OrganizationCards> organizationCards;
         if (request.getSubcategory() != null && !request.getSubcategory().equals("Показать все")) {
             organizationCards = organizationCardRepository.findBySubCategoriesName(request.getSubcategory(), request.getCity());
@@ -83,6 +83,12 @@ public class OrganizationCardServiceImpl implements OrganizationCardService {
 
         }
         return organizationCardMapper.toDtoList(organizationCards);
+    }
+
+    @Override
+    public List<OrganizationsCardsResponse> getOrganizationCardWithFiles(OrganizationCardRequest request) {
+        List<OrganizationCards> organizationCards = organizationCardRepository.findByTelegramId(request.getTelegramId());
+        return organizationCards.stream().map(organizationsCardsMapper::toResponse).toList();
     }
 
     private Map<String, List<String>> parseCategories(String json) {

@@ -1,12 +1,12 @@
 package com.autoresourse.car_master.service.card;
 
-import com.autoresourse.car_master.dto.OrganizationCardRequest;
-import com.autoresourse.car_master.dto.OrganizationCardResponseDTO;
-import com.autoresourse.car_master.dto.RegistrationOrganizationRequest;
+import com.autoresourse.car_master.dto.*;
 
 import java.util.List;
 
 public interface OrganizationCardService {
     void processCreateOrganizationCard(RegistrationOrganizationRequest request);
-    List<OrganizationCardResponseDTO> getOrganizationCardWithFiles(OrganizationCardRequest request);
+    List<OrganizationCardResponse> getOrganizationsCardsWithFiles(OrganizationsCardsRequest request);
+
+    List<OrganizationsCardsResponse> getOrganizationCardWithFiles(OrganizationCardRequest request);
 }

@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=yes">
     <title>Организации</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .back-button {
@@ -34,7 +36,9 @@
             color: #333;
             margin: 0;
             padding: 20px;
+            -webkit-text-size-adjust: 100%;
         }
+
         .organization-phone {
             font-size: 14px;
             margin-bottom: 8px;
@@ -44,9 +48,26 @@
         .phone-link {
             color: #0066cc;
             text-decoration: none;
+            cursor: pointer;
+            display: inline-block;
+            padding: 2px 0;
         }
 
-        .phone-link:hover {
+        .phone-button {
+            background: none;
+            border: none;
+            color: #0066cc;
+            text-decoration: none;
+            padding: 0;
+            margin: 0;
+            font: inherit;
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            display: inline;
+        }
+
+        .phone-link:hover, .phone-button:hover {
             text-decoration: underline;
         }
 
@@ -163,12 +184,6 @@
             color: #555;
         }
 
-        .organization-phone {
-            font-size: 14px;
-            margin-bottom: 8px;
-            color: #555;
-        }
-
         .organization-description {
             font-size: 14px;
             color: #666;
@@ -236,6 +251,32 @@
         localStorage.removeItem('categoryId');
         localStorage.removeItem('subcategoryName');
         window.location.href = 'client_category.html';
+    }
+
+    // Универсальная функция для звонка
+    function makePhoneCall(phoneNumber) {
+        // Очищаем номер от всего, кроме цифр и +
+        const cleanPhone = phoneNumber.replace(/[^\d+]/g, '');
+
+        // Пробуем разные методы вызова
+        try {
+            // Стандартный метод
+            window.location.href = 'tel:' + cleanPhone;
+
+            // Альтернативный метод для iOS
+            setTimeout(function() {
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = 'tel:' + cleanPhone;
+                document.body.appendChild(iframe);
+
+                setTimeout(function() {
+                    document.body.removeChild(iframe);
+                }, 100);
+            }, 100);
+        } catch (e) {
+            console.error('Ошибка при попытке звонка:', e);
+        }
     }
 
     async function initLocation() {
@@ -358,11 +399,11 @@
                 imagesHtml += '</div>';
             }
 
-            // Форматируем телефон для ссылки tel:
+            // Форматируем телефон
             let phoneHtml = 'Телефон не указан';
             if (org.phone) {
-                const cleanPhone = org.phone.replace(/[^\d+]/g, ''); // Оставляем только цифры и +
-                phoneHtml = `☎ <a href="tel:${cleanPhone}" class="phone-link">${org.phone}</a>`;
+                // Создаем кнопку вместо ссылки для лучшей совместимости
+                phoneHtml = `☎ <button class="phone-button" onclick="makePhoneCall('${org.phone}')">${org.phone}</button>`;
             }
 
             li.innerHTML = `

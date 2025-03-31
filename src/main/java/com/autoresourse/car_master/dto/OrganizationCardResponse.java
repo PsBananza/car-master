@@ -10,7 +10,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
-public class OrganizationCardResponseDTO {
+public class OrganizationCardResponse {
     private UUID id;
     private String company;
     private String phone;
@@ -19,6 +19,7 @@ public class OrganizationCardResponseDTO {
     private String city;
     private String address;
     private String categories;
+    private Boolean isActive;
     private List<FileResponseDTO> files;
 
     @Getter
@@ -30,4 +31,3 @@ public class OrganizationCardResponseDTO {
         private long size;
     }
 }
-

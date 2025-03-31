@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no">
+    <title>Карточки организаций</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: red;
+            color: white;
+            font-size: 14px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background-color: darkred;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .organization-phone {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto 20px;
+            width: 100%;
+        }
+
+        .organization-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .organization-item {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+            padding: 15px;
+            position: relative;
+        }
+
+        .organization-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-moderation {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .images-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .image-wrapper {
+            width: calc(20% - 4px);
+            aspect-ratio: 1;
+            overflow: hidden;
+            border-radius: 4px;
+            background-color: #eee;
+        }
+
+        .organization-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .organization-image:hover {
+            transform: scale(1.03);
+        }
+
+        .organization-company {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .organization-address {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #555;
+            cursor: default;
+        }
+
+        .organization-description {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .categories-container {
+            margin-top: 10px;
+        }
+
+        .categories-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .category-block {
+            margin-bottom: 8px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            padding: 3px 0;
+        }
+
+        .category-name {
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .toggle-icon {
+            width: 20px;
+            text-align: center;
+            transition: transform 0.2s;
+            font-size: 14px;
+        }
+
+        .subcategories-container {
+            margin-left: 25px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .subcategories-container.expanded {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .subcategories-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 5px 0;
+        }
+
+        .subcategory-item {
+            margin: 3px 0;
+            color: #555;
+            padding: 2px 0;
+            font-size: 13px;
+            word-break: break-word;
+        }
+
+        .show-more {
+            color: #0066cc;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 5px;
+            display: inline-block;
+            background: none;
+            border: none;
+            padding: 0;
+            text-decoration: underline;
+        }
+
+        .show-more:hover {
+            text-decoration: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 80%;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            cursor: pointer;
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Стили для скроллбара */
+        .subcategories-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .subcategories-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .subcategories-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+
+        .subcategories-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+<button onclick="goBack()" class="back-button">⬅ Назад</button>
+<div class="container">
+    <ul id="organization-list" class="organization-list">
+        <div class="loading-spinner"></div>
+    </ul>
+</div>
+
+<!-- Модальное окно -->
+<div id="modal" class="modal">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <img id="modal-image" class="modal-content" alt="Фото">
+</div>
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+
+    async function loadImage(fileId) {
+        try {
+            const response = await fetch(`/files/${fileId}`);
+            if (!response.ok) throw new Error('Ошибка загрузки изображения');
+            const blob = await response.blob();
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(blob);
+            });
+        } catch (error) {
+            console.error('Ошибка загрузки изображения:', error);
+            return null;
+        }
+    }
+
+    function formatCategories(categories) {
+        if (!categories || !Array.isArray(categories) || categories.length === 0) {
+            return '';
+        }
+
+        let html = '<div class="categories-container">';
+        html += '<div class="categories-title">Категории:</div>';
+
+        categories.forEach(category => {
+            const hasSubcategories = category.subCategories && category.subCategories.length > 0;
+            const showLimited = hasSubcategories && category.subCategories.length > 10;
+            const visibleCount = showLimited ? 10 : category.subCategories?.length || 0;
+
+            html += `
+                <div class="category-block" data-category-id="${category.categoryId}">
+                    <div class="category-header" onclick="toggleSubcategories(this)">
+                        <span class="toggle-icon">${hasSubcategories ? '▸' : '•'}</span>
+                        <span class="category-name">${category.name || 'Без названия'}</span>
+                    </div>
+                    ${hasSubcategories ? `
+                    <div class="subcategories-container">
+                        <ul class="subcategories-list">
+                            ${category.subCategories.slice(0, visibleCount).map(subCat => `
+                                <li class="subcategory-item">${subCat.name || 'Без названия'}</li>
+                            `).join('')}
+                        </ul>
+                        ${showLimited ? `
+                        <button class="show-more" onclick="showAllSubcategories(event, this)">
+                            Показать все (${category.subCategories.length})
+                        </button>
+                        ` : ''}
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+
+        html += '</div>';
+        return html;
+    }
+
+    function toggleSubcategories(headerElement) {
+        const icon = headerElement.querySelector('.toggle-icon');
+        const container = headerElement.nextElementSibling;
+
+        if (container && container.classList.contains('subcategories-container')) {
+            container.classList.toggle('expanded');
+            icon.textContent = container.classList.contains('expanded') ? '▾' : '▸';
+        }
+    }
+
+    function showAllSubcategories(event, buttonElement) {
+        event.stopPropagation();
+        const container = buttonElement.parentElement;
+        const list = container.querySelector('.subcategories-list');
+        const categoryBlock = container.closest('.category-block');
+        const categoryId = categoryBlock.dataset.categoryId;
+
+        // Находим полные данные категории
+        const orgItem = categoryBlock.closest('.organization-item');
+        const orgData = orgItem._orgData;
+
+        if (orgData?.categories) {
+            const category = orgData.categories.find(cat => cat.categoryId === categoryId);
+            if (category?.subCategories) {
+                // Удаляем кнопку "Показать все"
+                buttonElement.remove();
+
+                // Добавляем все подкатегории
+                const alreadyShown = list.querySelectorAll('.subcategory-item').length;
+                const remainingSubcats = category.subCategories.slice(alreadyShown);
+
+                const fragment = document.createDocumentFragment();
+                remainingSubcats.forEach(subCat => {
+                    const item = document.createElement('li');
+                    item.className = 'subcategory-item';
+                    item.textContent = subCat.name || 'Без названия';
+                    fragment.appendChild(item);
+                });
+
+                list.appendChild(fragment);
+
+                // Автоматически раскрываем если был свернут
+                container.classList.add('expanded');
+                const icon = categoryBlock.querySelector('.toggle-icon');
+                if (icon) icon.textContent = '▾';
+            }
+        }
+    }
+
+    async function loadOrganizationCards() {
+        const list = document.getElementById('organization-list');
+        list.innerHTML = '<div class="loading-spinner"></div>';
+
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const telegramId = urlParams.get('telegramId') || localStorage.getItem('telegramId');
+
+            if (!telegramId) throw new Error('Telegram ID не указан');
+
+            const response = await fetch('/card/info', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ telegramId: telegramId })
+            });
+
+            if (!response.ok) throw new Error('Ошибка сервера');
+
+            const organizations = await response.json();
+
+            for (const org of organizations) {
+                if (org.files && org.files.length > 0) {
+                    for (const file of org.files) {
+                        file.dataUrl = await loadImage(file.fileId);
+                    }
+                }
+            }
+
+            renderOrganizations(organizations);
+        } catch (error) {
+            console.error('Ошибка загрузки:', error);
+            list.innerHTML = '<li>Ошибка загрузки данных. Пожалуйста, попробуйте позже.</li>';
+        }
+    }
+
+    function renderOrganizations(organizations) {
+        const list = document.getElementById('organization-list');
+        list.innerHTML = '';
+
+        if (!Array.isArray(organizations) || organizations.length === 0) {
+            list.innerHTML = '<li>Информация об организациях не найдена</li>';
+            return;
+        }
+
+        organizations.forEach(org => {
+            const li = document.createElement('li');
+            li.className = 'organization-item';
+
+            // Сохраняем данные организации в DOM-элементе
+            li._orgData = org;
+
+            // Добавляем статус модерации
+            const statusText = org.isActive ? 'Активно' : 'На модерации';
+            const statusClass = org.isActive ? 'status-active' : 'status-moderation';
+            const statusHtml = `<div class="organization-status ${statusClass}">${statusText}</div>`;
+
+            const imagesToShow = org.files?.slice(0, 5) || [];
+            let imagesHtml = '';
+
+            if (imagesToShow.length > 0) {
+                imagesHtml = '<div class="images-container">';
+                imagesToShow.forEach((file) => {
+                    if (file.dataUrl) {
+                        imagesHtml += `
+                            <div class="image-wrapper">
+                                <img src="${file.dataUrl}"
+                                     alt="${file.originalFileName}" class="organization-image"
+                                     onclick="openModal('${file.dataUrl}')">
+                            </div>
+                        `;
+                    }
+                });
+                imagesHtml += '</div>';
+            }
+
+            const phoneHtml = org.phone ? `☎ ${org.phone}` : 'Телефон не указан';
+
+            const addressParts = [];
+            if (org.district) addressParts.push(org.district);
+            if (org.city) addressParts.push(org.city);
+            if (org.address) addressParts.push(org.address);
+            const addressHtml = addressParts.length > 0 ? `📍 ${addressParts.join(', ')}` : '';
+
+            li.innerHTML = `
+                ${statusHtml}
+                ${imagesHtml}
+                <div class="organization-info">
+                    <div class="organization-company">${org.company || 'Компания не указана'}</div>
+                    ${addressHtml ? `<div class="organization-address">${addressHtml}</div>` : ''}
+                    <div class="organization-phone">${phoneHtml}</div>
+                    ${org.description ? `<div class="organization-description">${org.description}</div>` : ''}
+                    ${org.categories ? formatCategories(org.categories) : ''}
+                </div>
+            `;
+
+            list.appendChild(li);
+        });
+    }
+
+    function openModal(dataUrl) {
+        const modal = document.getElementById('modal');
+        const modalImg = document.getElementById('modal-image');
+        modalImg.src = dataUrl;
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    document.getElementById('modal').addEventListener('click', (event) => {
+        if (event.target === event.currentTarget) {
+            closeModal();
+        }
+    });
+
+    window.onload = loadOrganizationCards;
+</script>
+</body>
+</html>

@@ -339,7 +339,7 @@
         list.innerHTML = '<li>Загрузка организаций...</li>';
 
         try {
-            const response = await fetch('/card/info', {
+            const response = await fetch('/cards/info', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -395,9 +395,9 @@
             // Форматируем телефон для ссылки tel:
             let phoneHtml = 'Телефон не указан';
             if (org.phone) {
-                const cleanPhone = org.phone.replace(/[^\d+]/g, '');
-                phoneHtml = `☎ <a href="tel:${cleanPhone}" class="phone-link">${org.phone}</a>`;
+                phoneHtml = `☎ <a href="tel:${org.phone.replace(/[^\d+]/g, '')}" target="_blank" class="phone-link">${org.phone}</a>`;
             }
+
 
             // Форматируем адрес для ссылки на Яндекс.Карты
             let addressHtml = 'Адрес не указан';

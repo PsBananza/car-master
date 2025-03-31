@@ -18,4 +18,7 @@ public interface OrganizationCardRepository extends JpaRepository<OrganizationCa
     @Query("SELECT oc FROM organization_cards oc JOIN oc.categories cat WHERE cat.id = :catId and oc.city = :city")
     List<OrganizationCards> findByCategoryId(@Param("catId") UUID catId, @Param("city") String city);
 
+    @Query("SELECT oc FROM organization_cards oc JOIN oc.user u WHERE u.telegramId = :telegramId")
+    List<OrganizationCards> findByTelegramId(@Param("telegramId") String telegramId);
+
 }

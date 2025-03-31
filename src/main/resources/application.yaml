@@ -25,7 +25,7 @@ spring:
       max-request-size: 20MB
 
 webApp:
-  url: https://w0b330-93-157-20-22.ru.tuna.am
+  url: https://olvjhc-93-157-20-22.ru.tuna.am
   id: 771107152
 
 telegrambots:

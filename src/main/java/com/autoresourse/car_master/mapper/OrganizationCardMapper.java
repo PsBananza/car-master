@@ -1,6 +1,6 @@
 package com.autoresourse.car_master.mapper;
 
-import com.autoresourse.car_master.dto.OrganizationCardResponseDTO;
+import com.autoresourse.car_master.dto.OrganizationCardResponse;
 import com.autoresourse.car_master.entity.Category;
 import com.autoresourse.car_master.entity.Files;
 import com.autoresourse.car_master.entity.OrganizationCards;
@@ -17,15 +17,15 @@ public interface OrganizationCardMapper {
 
     @Mapping(target = "categories", expression = "java(mapCategories(entity.getCategories()))")
     @Mapping(target = "files", source = "files")
-    OrganizationCardResponseDTO toDto(OrganizationCards entity);
+    OrganizationCardResponse toDto(OrganizationCards entity);
 
-    List<OrganizationCardResponseDTO> toDtoList(List<OrganizationCards> entities);
+    List<OrganizationCardResponse> toDtoList(List<OrganizationCards> entities);
 
 //    @Mapping(target = "byte64", source = "fileData", qualifiedByName = "encodeBase64")
     @Mapping(target = "fileId", source = "id")
-    OrganizationCardResponseDTO.FileResponseDTO toDto(Files file);
+    OrganizationCardResponse.FileResponseDTO toDto(Files file);
 
-    default List<OrganizationCardResponseDTO.FileResponseDTO> mapFiles(List<Files> files) {
+    default List<OrganizationCardResponse.FileResponseDTO> mapFiles(List<Files> files) {
         return files.stream().map(this::toDto).collect(Collectors.toList());
     }
 

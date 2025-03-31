@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=yes">
+    <title>Карточки организаций</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: red;
+            color: white;
+            font-size: 14px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background-color: darkred;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .organization-phone {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .phone-link {
+            color: #0066cc;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-block;
+            padding: 2px 0;
+        }
+
+        .phone-button {
+            background: none;
+            border: none;
+            color: #0066cc;
+            text-decoration: none;
+            padding: 0;
+            margin: 0;
+            font: inherit;
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            display: inline;
+        }
+
+        .phone-link:hover, .phone-button:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto 20px;
+            width: 100%;
+        }
+
+        .organization-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .organization-item {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+            padding: 15px;
+        }
+
+        .images-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .image-wrapper {
+            width: calc(20% - 4px);
+            aspect-ratio: 1;
+            overflow: hidden;
+            border-radius: 4px;
+            background-color: #eee;
+        }
+
+        .organization-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .organization-image:hover {
+            transform: scale(1.03);
+        }
+
+        .organization-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #222;
+        }
+
+        .organization-company {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .organization-address {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .organization-description {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 80%;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            cursor: pointer;
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+<button onclick="goBack()" class="back-button">⬅ Назад</button>
+<div class="container">
+    <ul id="organization-list" class="organization-list">
+        <div class="loading-spinner"></div>
+    </ul>
+</div>
+
+<!-- Модальное окно -->
+<div id="modal" class="modal">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <img id="modal-image" class="modal-content" alt="Фото">
+</div>
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+
+    // Универсальная функция для звонка
+    function makePhoneCall(phoneNumber) {
+        const cleanPhone = phoneNumber.replace(/[^\d+]/g, '');
+        try {
+            window.location.href = 'tel:' + cleanPhone;
+            setTimeout(function() {
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = 'tel:' + cleanPhone;
+                document.body.appendChild(iframe);
+                setTimeout(function() {
+                    document.body.removeChild(iframe);
+                }, 100);
+            }, 100);
+        } catch (e) {
+            console.error('Ошибка при попытке звонка:', e);
+        }
+    }
+
+    // Функция для загрузки изображения по fileId
+    async function loadImage(fileId) {
+        try {
+            const response = await fetch(`/files/${fileId}`);
+            if (!response.ok) throw new Error('Ошибка загрузки изображения');
+            const blob = await response.blob();
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(blob);
+            });
+        } catch (error) {
+            console.error('Ошибка загрузки изображения:', error);
+            return null;
+        }
+    }
+
+    async function loadOrganizationCards() {
+        const list = document.getElementById('organization-list');
+        list.innerHTML = '<div class="loading-spinner"></div>';
+
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const telegramId = urlParams.get('telegramId') || localStorage.getItem('telegramId');
+
+            if (!telegramId) throw new Error('Telegram ID не указан');
+
+            const response = await fetch('/card/info', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ telegramId: telegramId })
+            });
+
+            if (!response.ok) throw new Error('Ошибка сервера');
+
+            const organizations = await response.json();
+
+            // Загружаем изображения для каждой организации
+            for (const org of organizations) {
+                if (org.files && org.files.length > 0) {
+                    for (const file of org.files) {
+                        file.dataUrl = await loadImage(file.fileId);
+                    }
+                }
+            }
+
+            renderOrganizations(organizations);
+        } catch (error) {
+            console.error('Ошибка загрузки:', error);
+            list.innerHTML = '<li>Ошибка загрузки данных. Пожалуйста, попробуйте позже.</li>';
+        }
+    }
+
+    function renderOrganizations(organizations) {
+        const list = document.getElementById('organization-list');
+        list.innerHTML = '';
+
+        if (!Array.isArray(organizations) || organizations.length === 0) {
+            list.innerHTML = '<li>Информация об организациях не найдена</li>';
+            return;
+        }
+
+        organizations.forEach(org => {
+            const li = document.createElement('li');
+            li.className = 'organization-item';
+
+            const imagesToShow = org.files?.slice(0, 5) || [];
+            let imagesHtml = '';
+
+            if (imagesToShow.length > 0) {
+                imagesHtml = '<div class="images-container">';
+                imagesToShow.forEach((file) => {
+                    if (file.dataUrl) {
+                        imagesHtml += `
+                            <div class="image-wrapper">
+                                <img src="${file.dataUrl}"
+                                     alt="${file.originalFileName}" class="organization-image"
+                                     onclick="openModal('${file.dataUrl}')">
+                            </div>
+                        `;
+                    }
+                });
+                imagesHtml += '</div>';
+            }
+
+            const phoneHtml = org.phone
+                ? `☎ <button class="phone-button" onclick="makePhoneCall('${org.phone}')">${org.phone}</button>`
+                : 'Телефон не указан';
+
+            const addressParts = [];
+            if (org.district) addressParts.push(org.district);
+            if (org.city) addressParts.push(org.city);
+            if (org.address) addressParts.push(org.address);
+            const addressHtml = addressParts.length > 0
+                ? `📍 ${addressParts.join(', ')}`
+                : '';
+
+            li.innerHTML = `
+                ${imagesHtml}
+                <div class="organization-info">
+                    <div class="organization-company">${org.company || 'Компания не указана'}</div>
+                    ${addressHtml ? `<div class="organization-address">${addressHtml}</div>` : ''}
+                    <div class="organization-phone">${phoneHtml}</div>
+                    ${org.description ? `<div class="organization-description">${org.description}</div>` : ''}
+                    ${org.categories ? `<div class="organization-categories">Категории: ${org.categories}</div>` : ''}
+                </div>
+            `;
+            list.appendChild(li);
+        });
+    }
+
+    function openModal(dataUrl) {
+        const modal = document.getElementById('modal');
+        const modalImg = document.getElementById('modal-image');
+        modalImg.src = dataUrl;
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    document.getElementById('modal').addEventListener('click', (event) => {
+        if (event.target === event.currentTarget) {
+            closeModal();
+        }
+    });
+
+    window.onload = loadOrganizationCards;
+</script>
+</body>
+</html>
