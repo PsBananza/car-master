@@ -68,6 +68,11 @@ public class FileServiceImpl implements FileService {
         return fileMapper.toDto(file);
     }
 
+    @Override
+    public void deleteFile(UUID uuid) {
+        fileRepository.deleteById(uuid);
+    }
+
     /**
      * Сжатие изображения перед сохранением
      */

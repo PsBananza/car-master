@@ -9,4 +9,8 @@ public interface OrganizationCardService {
     List<OrganizationCardResponse> getOrganizationsCardsWithFiles(OrganizationsCardsRequest request);
 
     List<OrganizationsCardsResponse> getOrganizationCardWithFiles(OrganizationCardRequest request);
+
+    OrganizationsCardsResponse updateCard(UpdateCardDto updateDto);
+
+    void deleteCard(String id, String telegramId);
 }

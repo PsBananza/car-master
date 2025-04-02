@@ -1,7 +1,6 @@
 package com.autoresourse.car_master.mapper;
 
 import com.autoresourse.car_master.dto.CategoryDto;
-import com.autoresourse.car_master.dto.OrganizationCardResponse;
 import com.autoresourse.car_master.dto.OrganizationsCardsResponse;
 import com.autoresourse.car_master.entity.Category;
 import com.autoresourse.car_master.entity.Files;
@@ -11,56 +10,63 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface OrganizationsCardsMapper {
 
-    @Mapping(target = "categories", source = "categories", qualifiedByName = "mapCategories")
+    @Mapping(target = "categories", source = "organizationCards", qualifiedByName = "mapCardCategories")
     @Mapping(target = "files", source = "files", qualifiedByName = "mapFiles")
     OrganizationsCardsResponse toResponse(OrganizationCards organizationCards);
 
-    @Named("mapCategories")
-    default List<CategoryDto> mapCategories(Set<Category> categories) {
-        if (categories == null) {
+    @Named("mapCardCategories")
+    default List<CategoryDto> mapCardCategories(OrganizationCards organizationCards) {
+        if (organizationCards.getCategories() == null) {
+            return Collections.emptyList();
+        }
+
+        return organizationCards.getCategories().stream()
+                .map(category -> toCategoryDto(category, organizationCards.getSubCategories()))
+                .toList();
+    }
+
+    default CategoryDto toCategoryDto(Category category, Set<SubCategory> cardSubCategories) {
+        if (category == null) {
             return null;
         }
-        return categories.stream()
-                .map(this::toCategoryDto)
-                .collect(java.util.stream.Collectors.toList());
+
+        // Фильтруем подкатегории, оставляя только те, которые есть в карточке
+        List<SubCategory> filteredSubCategories = category.getSubCategories().stream()
+                .filter(subCat -> cardSubCategories.stream()
+                        .anyMatch(cardSubCat -> cardSubCat.getId().equals(subCat.getId())))
+                .toList();
+
+        return CategoryDto.builder()
+                .categoryId(category.getId())
+                .name(category.getName())
+                .subCategories(toSubCategoryDtoList(filteredSubCategories))
+                .build();
     }
 
     @Named("mapFiles")
     default List<OrganizationsCardsResponse.FileResponseDTO> mapFiles(List<Files> files) {
         if (files == null) {
-            return null;
+            return Collections.emptyList();
         }
         return files.stream()
                 .map(this::toFileResponseDTO)
-                .collect(java.util.stream.Collectors.toList());
-    }
-
-    default CategoryDto toCategoryDto(Category category) {
-        if (category == null) {
-            return null;
-        }
-        return CategoryDto.builder()
-                .categoryId(category.getId())
-                .name(category.getName())
-                .subCategories(toSubCategoryDtoList(category.getSubCategories()))
-                .build();
+                .toList();
     }
 
     default List<CategoryDto.SubCategoryDto> toSubCategoryDtoList(List<SubCategory> subCategories) {
         if (subCategories == null) {
-            return null;
+            return Collections.emptyList();
         }
         return subCategories.stream()
                 .map(this::toSubCategoryDto)
-                .collect(java.util.stream.Collectors.toList());
+                .toList();
     }
 
     default CategoryDto.SubCategoryDto toSubCategoryDto(SubCategory subCategory) {

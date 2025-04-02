@@ -11,4 +11,6 @@ public interface FileService {
     void uploadFile(MultipartFile files, OrganizationCards card);
 
     FileDto getFileData(UUID fileId);
+
+    void deleteFile(UUID uuid);
 }

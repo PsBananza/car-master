@@ -12,10 +12,10 @@ import java.util.UUID;
 @Repository
 public interface OrganizationCardRepository extends JpaRepository<OrganizationCards, UUID> {
 
-    @Query("SELECT oc FROM organization_cards oc JOIN oc.subCategories sub WHERE sub.name = :subName and oc.city = :city")
+    @Query("SELECT oc FROM organization_cards oc JOIN oc.subCategories sub WHERE sub.name = :subName and oc.city = :city and oc.isActive = true")
     List<OrganizationCards> findBySubCategoriesName(@Param("subName") String subName, @Param("city") String city);
 
-    @Query("SELECT oc FROM organization_cards oc JOIN oc.categories cat WHERE cat.id = :catId and oc.city = :city")
+    @Query("SELECT oc FROM organization_cards oc JOIN oc.categories cat WHERE cat.id = :catId and oc.city = :city and oc.isActive = true")
     List<OrganizationCards> findByCategoryId(@Param("catId") UUID catId, @Param("city") String city);
 
     @Query("SELECT oc FROM organization_cards oc JOIN oc.user u WHERE u.telegramId = :telegramId")
