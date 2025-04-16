@@ -6,94 +6,7 @@
     <title>Добро пожаловать</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .welcome-card {
-            width: 100%;
-            max-width: 450px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            padding: 40px;
-            text-align: center;
-        }
-
-        .welcome-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: #222;
-            margin-bottom: 25px;
-            line-height: 1.3;
-        }
-
-        .welcome-text {
-            font-size: 18px;
-            color: #555;
-            margin-bottom: 35px;
-            line-height: 1.5;
-        }
-
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: 500;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            width: 100%;
-        }
-
-        .btn-primary {
-            background-color: #333;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #333;
-        }
-
-        .btn-secondary {
-            background-color: #f0f0f0;
-            color: #333;
-        }
-
-        .btn-secondary:hover {
-            background-color: #e0e0e0;
-        }
-
-        .btn-icon {
-            margin-right: 12px;
-            font-size: 22px;
-        }
-    </style>
+    <link rel="stylesheet" href="css/webapp.css">
 </head>
 <body>
 <div class="welcome-card">
@@ -118,29 +31,6 @@
     </div>
 </div>
 
-<script>
-    window.onload = function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const telegramId = urlParams.get('telegramId');
-
-        if (telegramId) {
-            localStorage.setItem("telegramId", telegramId);
-            console.log("telegramId сохранен в localStorage:", telegramId);
-        } else {
-            console.log("telegramId не найден в URL");
-        }
-    };
-
-    function sendData(action) {
-        if (action === 'login') {
-            const telegramId = localStorage.getItem("telegramId");
-            if (!telegramId) {
-                alert("Не удалось найти telegramId в localStorage.");
-                return;
-            }
-            console.log("ID пользователя для логина:", telegramId);
-        }
-    }
-</script>
+<script src="scripts/webapp.js"></script>
 </body>
 </html>

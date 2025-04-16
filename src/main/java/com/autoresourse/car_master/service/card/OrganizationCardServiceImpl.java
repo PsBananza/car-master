@@ -143,7 +143,7 @@ public class OrganizationCardServiceImpl implements OrganizationCardService {
     public void deleteCard(String id, String telegramId) {
         OrganizationCards organizationCard = organizationCardRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new RuntimeException("Карточка не найдена"));
-        if (!organizationCard.getUser().getId().equals(UUID.fromString(telegramId))) {
+        if (!organizationCard.getUser().getTelegramId().equals(Long.valueOf(telegramId))) {
             throw new RuntimeException("Нет прав на удаление карточки");
         }
         organizationCardRepository.delete(organizationCard);

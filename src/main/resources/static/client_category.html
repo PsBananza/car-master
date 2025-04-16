@@ -5,90 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Категории</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .back-button {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background-color: red;
-            color: white;
-            font-size: 14px;
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            z-index: 1000;
-        }
-
-        .back-button:hover {
-            background-color: darkred;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 50px auto 20px;
-        }
-
-        .page-title {
-            font-size: 24px;
-            font-weight: bold;
-            color: #222;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .category-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .category-item {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-bottom: 15px;
-            overflow: hidden;
-            padding: 15px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .category-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-        }
-
-        .category-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .loading-text {
-            text-align: center;
-            color: #666;
-            font-style: italic;
-        }
-
-        .error-text {
-            text-align: center;
-            color: #ff4b4b;
-            font-weight: bold;
-        }
-    </style>
+    <link rel="stylesheet" href="css/client_category.css">
 </head>
 <body>
 <button class="back-button" onclick="window.location.href = 'main.html';">⬅ Назад</button>
@@ -100,54 +17,6 @@
     </ul>
 </div>
 
-<script>
-    function loadCategories() {
-        fetch('/categories')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Ошибка сети');
-                }
-                return response.json();
-            })
-            .then(data => {
-                const list = document.getElementById('category-list');
-                list.innerHTML = '';
-
-                if (data.length === 0) {
-                    list.innerHTML = '<li class="error-text">Нет доступных категорий</li>';
-                    return;
-                }
-
-                data.forEach(category => {
-                    const li = document.createElement('li');
-                    li.className = 'category-item';
-
-                    const nameDiv = document.createElement('div');
-                    nameDiv.className = 'category-name';
-                    nameDiv.textContent = category.name;
-
-                    li.appendChild(nameDiv);
-
-                    li.onclick = () => {
-                        localStorage.setItem("categoryId", category.id);
-                        if (category.isSub) {
-                            window.location.href = 'subcategories.html';
-                        } else {
-                            window.location.href = 'organization_list.html';
-                        }
-                    };
-
-                    list.appendChild(li);
-                });
-            })
-            .catch(error => {
-                console.error('Ошибка загрузки категорий:', error);
-                document.getElementById('category-list').innerHTML =
-                    '<li class="error-text">Ошибка загрузки данных</li>';
-            });
-    }
-
-    window.onload = loadCategories;
-</script>
+<script src="scripts/client_category.js"></script>
 </body>
 </html>

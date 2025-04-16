@@ -1,1 +1,1 @@
-curl -F "url=https://wsnnhj-93-157-20-22.ru.tuna.am/webhook" "https://api.telegram.org/bot8094223162:AAECxv7df6Aa1BCul9XCmC6Uu3tWYvVQ0JA/setWebhook"
+curl -F "url=https://7o80qt-93-157-21-102.ru.tuna.am/webhook" "https://api.telegram.org/bot8094223162:AAECxv7df6Aa1BCul9XCmC6Uu3tWYvVQ0JA/setWebhook"

@@ -1,5 +1,0 @@
-curl -F "url=https://zvi5d2-93-157-21-167.ru.tuna.am" "https://api.telegram.org/bot8094223162:AAECxv7df6Aa1BCul9XCmC6Uu3tWYvVQ0JA/setWebhook"
-
-curl "https://api.telegram.org/bot8094223162:AAECxv7df6Aa1BCul9XCmC6Uu3tWYvVQ0JA/getWebhookInfo"
-
-curl -F "url=https://llg48y-93-157-21-167.ru.tuna.am/webhook" "https://api.telegram.org/bot8094223162:AAECxv7df6Aa1BCul9XCmC6Uu3tWYvVQ0JA/setWebhook"
